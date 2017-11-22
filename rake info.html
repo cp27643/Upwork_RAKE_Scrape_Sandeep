@@ -1,0 +1,4682 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:b="http://www.google.com/2005/gml/b" xmlns:data="http://www.google.com/2005/gml/data" xmlns:expr="http://www.google.com/2005/gml/expr"><head>
+<link href="rake%20info_files/3332739511-widget_css_bundle.css" rel="stylesheet" type="text/css">
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+<meta content="blogger" name="generator">
+<link href="http://sujitpal.blogspot.com/favicon.ico" rel="icon" type="image/x-icon">
+<link href="http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html" rel="canonical">
+<link rel="alternate" type="application/atom+xml" title="Salmon Run - Atom" href="http://sujitpal.blogspot.com/feeds/posts/default">
+<link rel="alternate" type="application/rss+xml" title="Salmon Run - RSS" href="http://sujitpal.blogspot.com/feeds/posts/default?alt=rss">
+<link rel="service.post" type="application/atom+xml" title="Salmon Run - Atom" href="https://www.blogger.com/feeds/7583720/posts/default">
+
+<link rel="alternate" type="application/atom+xml" title="Salmon Run - Atom" href="http://sujitpal.blogspot.com/feeds/2801403684823908983/comments/default">
+<!--Can't find substitution for tag [blog.ieCssRetrofitLinks]-->
+<meta content="http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html" property="og:url">
+<meta content="Implementing the RAKE Algorithm with NLTK" property="og:title">
+<meta content=" The Rapid Automatic Keyword Extraction (RAKE) algorithm extracts keywords from text, by identifying runs of non-stopwords and then scoring ..." property="og:description">
+<!--[if IE]> <script> (function() { var html5 = ("abbr,article,aside,audio,canvas,datalist,details," + "figure,footer,header,hgroup,mark,menu,meter,nav,output," + "progress,section,time,video").split(','); for (var i = 0; i < html5.length; i++) { document.createElement(html5[i]); } try { document.execCommand('BackgroundImageCache', false, true); } catch(e) {} })(); </script> <![endif]-->
+<title>Salmon Run: Implementing the RAKE Algorithm with NLTK</title>
+<style id="page-skin-1" type="text/css"><!--
+/*
+* Blogger Template Style
+*
+* Sand Dollar
+* by Jason Sutter
+* Updated by Blogger Team
+*/
+/* Variable definitions
+====================
+<Variable name="textcolor" description="Text Color"
+type="color" default="#000">
+<Variable name="bgcolor" description="Page Background Color"
+type="color" default="#f6f6f6">
+<Variable name="pagetitlecolor" description="Blog Title Color"
+type="color" default="#F5DEB3">
+<Variable name="pagetitlebgcolor" description="Blog Title Background Color"
+type="color" default="#DE7008">
+<Variable name="descriptionColor" description="Blog Description Color"
+type="color" default="#9E5205" />
+<Variable name="descbgcolor" description="Description Background Color"
+type="color" default="#F5E39e">
+<Variable name="titlecolor" description="Post Title Color"
+type="color" default="#9E5205">
+<Variable name="datecolor" description="Date Header Color"
+type="color" default="#777777">
+<Variable name="footercolor" description="Post Footer Color"
+type="color" default="#444444">
+<Variable name="linkcolor" description="Link Color"
+type="color" default="#DE7008">
+<Variable name="footerlinkcolor" description="Post Footer Link Color"
+type="color" default="#968a0a">
+<Variable name="visitedlinkcolor" description="Visited Link Color"
+type="color" default="#DE7008">
+<Variable name="sidebarcolor" description="Sidebar Title Color"
+type="color" default="#B8A80D">
+<Variable name="sidebarlinkcolor" description="Sidebar Link Color"
+type="color" default="#999999">
+<Variable name="bordercolor" description="Border Color"
+type="color" default="#e0ad12">
+<Variable name="bodyfont" description="Text Font"
+type="font"
+default="normal normal 100% 'Trebuchet MS',Trebuchet,Verdana,Sans-Serif">
+<Variable name="headerfont" description="Sidebar Title Font"
+type="font"
+default="normal bold 150% Verdana,Sans-serif">
+<Variable name="dateHeaderFont" description="Date Header Font"
+type="font"
+default="normal bold 105% 'Trebuchet MS',Trebuchet,Verdana,Sans-serif">
+<Variable name="pagetitlefont" description="Blog Title Font"
+type="font" default="normal bold 300% Verdana,Sans-Serif">
+<Variable name="titlefont" description="Post Title Font"
+type="font" default="normal bold 160% Verdana,Sans-Serif">
+*/
+body {
+margin:0px;
+padding:0px;
+background:#f6f6f6;
+color:#000000;
+font-size: small;
+}
+#outer-wrapper {
+font:normal normal 100% 'Trebuchet MS',Trebuchet,Verdana,Sans-Serif;
+}
+a {
+color:#DE7008;
+}
+a:hover {
+color:#9E5205;
+}
+a img {
+border-width: 0;
+}
+#content-wrapper {
+padding: 0 1em 0 1em;
+}
+@media all  {
+div#main {
+float:right;
+width:66%;
+padding:30px 0 10px 1em;
+border-left:dotted 1px #e0ad12;
+word-wrap: break-word; /* fix for long text breaking sidebar float in IE */
+overflow: hidden;     /* fix for long non-text content breaking IE sidebar float */
+}
+div#sidebar {
+margin:20px 0px 0px 0;
+padding:0px;
+text-align:left;
+float: left;
+width: 31%;
+word-wrap: break-word; /* fix for long text breaking sidebar float in IE */
+overflow: hidden;     /* fix for long non-text content breaking IE sidebar float */
+}
+}
+@media handheld  {
+div#main {
+float:none;
+width:90%;
+}
+div#sidebar {
+padding:30px 7% 10px 3%;
+}
+}
+#header {
+padding:0px 0px 0px 0px;
+margin:0px 0px 0px 0px;
+border-bottom:dotted 1px #e0ad12;
+background:#F5E39e;
+}
+h1 a:link  {
+text-decoration:none;
+color:#F5DEB3
+}
+h1 a:visited  {
+text-decoration:none;
+color:#F5DEB3
+}
+h1,h2,h3 {
+margin: 0;
+}
+h1 {
+padding:25px 0px 10px 5%;
+color:#F5DEB3;
+background:#DE7008;
+font:normal bold 300% Verdana,Sans-Serif;
+letter-spacing:-2px;
+}
+h3.post-title {
+color:#9E5205;
+font:normal bold 160% Verdana,Sans-Serif;
+letter-spacing:-1px;
+}
+h3.post-title a,
+h3.post-title a:visited {
+color: #9E5205;
+}
+h2.date-header  {
+margin:10px 0px 0px 0px;
+color:#777777;
+font: normal bold 105% 'Trebuchet MS',Trebuchet,Verdana,Sans-serif;
+}
+h4 {
+color:#aa0033;
+}
+#sidebar h2 {
+color:#B8A80D;
+margin:0px;
+padding:0px;
+font:normal bold 150% Verdana,Sans-serif;
+}
+#sidebar .widget {
+margin:0px 0px 33px 0px;
+padding:0px 0px 0px 0px;
+font-size:95%;
+}
+#sidebar ul {
+list-style-type:none;
+padding-left: 0;
+margin-top: 0;
+}
+#sidebar li {
+margin:0px 0px 0px 0px;
+padding:0px 0px 0px 0px;
+list-style-type:none;
+font-size:95%;
+}
+.description {
+padding:0px;
+margin:7px 12% 7px 5%;
+color:#9E5205;
+background:transparent;
+font:bold 100% Verdana,Sans-Serif;
+}
+.post {
+margin:0px 0px 30px 0px;
+}
+.post strong {
+color:#000000;
+font-weight:bold;
+}
+strike {
+color:#999999;
+}
+.post-footer  {
+padding:0px;
+margin:0px;
+color:#444444;
+font-size:80%;
+}
+.post-footer a {
+border:none;
+color:#968a0a;
+text-decoration:none;
+}
+.post-footer a:hover {
+text-decoration:underline;
+}
+#comments {
+padding:0px;
+font-size:110%;
+font-weight:bold;
+}
+.comment-author {
+margin-top: 10px;
+}
+.comment-body {
+font-size:100%;
+font-weight:normal;
+color:black;
+}
+.comment-footer {
+padding-bottom:20px;
+color:#444444;
+font-size:80%;
+font-weight:normal;
+display:inline;
+margin-right:10px
+}
+.deleted-comment  {
+font-style:italic;
+color:gray;
+}
+.comment-link  {
+margin-left:.6em;
+}
+.profile-textblock {
+clear: both;
+margin-left: 0;
+}
+.profile-img {
+float: left;
+margin: 0 5px 5px 0;
+border: 2px solid #DE7008;
+}
+#sidebar a:link  {
+color:#999999;
+text-decoration:none;
+}
+#sidebar a:active  {
+color:#ff0000;
+text-decoration:none;
+}
+#sidebar a:visited  {
+color:sidebarlinkcolor;
+text-decoration:none;
+}
+#sidebar a:hover {
+color:#B8A80D;
+text-decoration:none;
+}
+.feed-links {
+clear: both;
+line-height: 2.5em;
+}
+#blog-pager-newer-link {
+float: left;
+}
+#blog-pager-older-link {
+float: right;
+}
+#blog-pager {
+text-align: center;
+}
+.clear {
+clear: both;
+}
+.widget-content {
+margin-top: 0.5em;
+}
+/** Tweaks for layout editor preview */
+body#layout #outer-wrapper {
+margin-top: 0;
+}
+body#layout #main,
+body#layout #sidebar {
+margin-top: 10px;
+padding-top: 0;
+}
+/* start Pygment stylesheet for style='emacs' */
+.linenos {background-color: #cccccc }
+.hll { background-color: #ffffcc }
+.c { color: #008800; font-style: italic } /* Comment */
+.err { border: 1px solid #FF0000 } /* Error */
+.k { color: #AA22FF; font-weight: bold } /* Keyword */
+.o { color: #666666 } /* Operator */
+.cm { color: #008800; font-style: italic } /* Comment.Multiline */
+.cp { color: #008800 } /* Comment.Preproc */
+.c1 { color: #008800; font-style: italic } /* Comment.Single */
+.cs { color: #008800; font-weight: bold } /* Comment.Special */
+.gd { color: #A00000 } /* Generic.Deleted */
+.ge { font-style: italic } /* Generic.Emph */
+.gr { color: #FF0000 } /* Generic.Error */
+.gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.gi { color: #00A000 } /* Generic.Inserted */
+.go { color: #808080 } /* Generic.Output */
+.gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.gs { font-weight: bold } /* Generic.Strong */
+.gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.gt { color: #0040D0 } /* Generic.Traceback */
+.kc { color: #AA22FF; font-weight: bold } /* Keyword.Constant */
+.kd { color: #AA22FF; font-weight: bold } /* Keyword.Declaration */
+.kn { color: #AA22FF; font-weight: bold } /* Keyword.Namespace */
+.kp { color: #AA22FF } /* Keyword.Pseudo */
+.kr { color: #AA22FF; font-weight: bold } /* Keyword.Reserved */
+.kt { color: #00BB00; font-weight: bold } /* Keyword.Type */
+.m { color: #666666 } /* Literal.Number */
+.s { color: #BB4444 } /* Literal.String */
+.na { color: #BB4444 } /* Name.Attribute */
+.nb { color: #AA22FF } /* Name.Builtin */
+.nc { color: #0000FF } /* Name.Class */
+.no { color: #880000 } /* Name.Constant */
+.nd { color: #AA22FF } /* Name.Decorator */
+.ni { color: #999999; font-weight: bold } /* Name.Entity */
+.ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+.nf { color: #00A000 } /* Name.Function */
+.nl { color: #A0A000 } /* Name.Label */
+.nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.nt { color: #008000; font-weight: bold } /* Name.Tag */
+.nv { color: #B8860B } /* Name.Variable */
+.ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.w { color: #bbbbbb } /* Text.Whitespace */
+.mf { color: #666666 } /* Literal.Number.Float */
+.mh { color: #666666 } /* Literal.Number.Hex */
+.mi { color: #666666 } /* Literal.Number.Integer */
+.mo { color: #666666 } /* Literal.Number.Oct */
+.sb { color: #BB4444 } /* Literal.String.Backtick */
+.sc { color: #BB4444 } /* Literal.String.Char */
+.sd { color: #BB4444; font-style: italic } /* Literal.String.Doc */
+.s2 { color: #BB4444 } /* Literal.String.Double */
+.se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+.sh { color: #BB4444 } /* Literal.String.Heredoc */
+.si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+.sx { color: #008000 } /* Literal.String.Other */
+.sr { color: #BB6688 } /* Literal.String.Regex */
+.s1 { color: #BB4444 } /* Literal.String.Single */
+.ss { color: #B8860B } /* Literal.String.Symbol */
+.bp { color: #AA22FF } /* Name.Builtin.Pseudo */
+.vc { color: #B8860B } /* Name.Variable.Class */
+.vg { color: #B8860B } /* Name.Variable.Global */
+.vi { color: #B8860B } /* Name.Variable.Instance */
+.il { color: #666666 } /* Literal.Number.Integer.Long */
+/* end Pygment stylesheet for style='emacs' */
+
+--></style>
+<link href="rake%20info_files/authorization.css" media="all" onload="if(media!='all')media='all'" rel="stylesheet"><noscript><link href='https://www.blogger.com/dyn-css/authorization.css?targetBlogID=7583720&amp;zx=39f9a120-f454-48de-a581-1516887a5fdd' rel='stylesheet'/></noscript>
+<script src="rake%20info_files/cbgapi.loaded_3" async=""></script><script src="rake%20info_files/cbgapi.loaded_2" async=""></script><script type="text/javascript" async="" src="rake%20info_files/map.js"></script><script type="text/javascript" src="rake%20info_files/google_top_exp.js"></script><style></style><style>.gc-bubbleDefault{background-color:transparent !important;text-align:left;padding:0 !important;margin:0 !important;border:0 !important;table-layout:auto !important}.gc-reset{background-color:transparent !important;border:0 !important;padding:0 !important;margin:0 !important;text-align:left}.pls-bubbleTop{border-bottom:1px solid #ccc !important}.pls-topTail,.pls-vertShimLeft,.pls-contentLeft{background-image:url(//ssl.gstatic.com/s2/oz/images/stars/po/bubblev1/border_3.gif) !important}.pls-topTail{background-repeat:repeat-x !important;background-position:bottom !important}.pls-vertShim{background-color:#fff !important;text-align:right}.tbl-grey .pls-vertShim{background-color:#f5f5f5 !important}.pls-vertShimLeft{background-repeat:repeat-y !important;background-position:right !important;height:4px}.pls-vertShimRight{height:4px}.pls-confirm-container .pls-vertShim{background-color:#fff3c2 !important}.pls-contentWrap{background-color:#fff !important;position:relative !important;vertical-align:top}.pls-contentLeft{background-repeat:repeat-y;background-position:right;vertical-align:top}.pls-dropRight{background-image:url(//ssl.gstatic.com/s2/oz/images/stars/po/bubblev1/bubbleDropR_3.png) !important;background-repeat:repeat-y !important;vertical-align:top}.pls-vert,.pls-tailleft,.pls-dropTR .pls-dropBR,.pls-dropBL,.pls-vert img{vertical-align:top}.pls-dropBottom{background-image:url(//ssl.gstatic.com/s2/oz/images/stars/po/bubblev1/bubbleDropB_3.png) !important;background-repeat:repeat-x !important;width:100%;vertical-align:top}.pls-topLeft{background:inherit !important;text-align:right;vertical-align:bottom}.pls-topRight{background:inherit !important;text-align:left;vertical-align:bottom}.pls-bottomLeft{background:inherit !important;text-align:right}.pls-bottomRight{background:inherit !important;text-align:left;vertical-align:top}.pls-tailtop,.pls-tailright,.pls-tailbottom,.pls-tailleft{display:none;position:relative}.pls-tailbottom,.pls-tailtop,.pls-tailright,.pls-tailleft,.pls-dropTR,.pls-dropBR,.pls-dropBL{background-image:url(//ssl.gstatic.com/s2/oz/images/stars/po/bubblev1/bubbleSprite_3.png) !important;background-repeat:no-repeat}.tbl-grey .pls-tailbottom,.tbl-grey .pls-tailtop,.tbl-grey .pls-tailright,.tbl-grey .pls-tailleft,.tbl-grey .pls-dropTR,.tbl-grey .pls-dropBR,.tbl-grey .pls-dropBL{background-image:url(//ssl.gstatic.com/s2/oz/images/stars/po/bubblev1/bubbleSprite-grey.png) !important}.pls-tailbottom{background-position:-23px 0}.pls-confirm-container .pls-tailbottom{background-position:-23px -10px}.pls-tailtop{background-position:-19px -20px}.pls-tailright{background-position:0 0}.pls-tailleft{background-position:-10px 0}.pls-tailtop{vertical-align:top}.gc-bubbleDefault td{line-height:0;font-size:0}.pls-topLeft img,.pls-topRight img,.pls-tailbottom{vertical-align:bottom}.pls-bottomLeft img,.bubbleDropTR,.pls-dropBottomL img,.pls-dropBottom img,.pls-dropBottomR img,.pls-bottomLeft{vertical-align:top}.pls-dropTR{background-position:0 -22px}.pls-dropBR{background-position:0 -27px}.pls-dropBL{background-position:0 -16px}.pls-spacertop,.pls-spacerright,.pls-spacerbottom,.pls-spacerleft{position:static !important}.pls-spinner{bottom:0;position:absolute;left:0;margin:auto;right:0;top:0} </style><script async="" src="rake%20info_files/lazy.js"></script></head>
+<body>
+<div class="navbar section" id="navbar"><div class="widget Navbar" data-version="1" id="Navbar1"><script src="rake%20info_files/cbgapi.loaded_1" async=""></script><script src="rake%20info_files/cbgapi.loaded_0" async=""></script><script type="text/javascript">
+    function setAttributeOnload(object, attribute, val) {
+      if(window.addEventListener) {
+        window.addEventListener('load',
+          function(){ object[attribute] = val; }, false);
+      } else {
+        window.attachEvent('onload', function(){ object[attribute] = val; });
+      }
+    }
+  </script>
+<div id="navbar-iframe-container"><iframe ng-non-bindable="" hspace="0" marginheight="0" marginwidth="0" scrolling="no" style="" tabindex="0" vspace="0" id="navbar-iframe" name="navbar-iframe" src="rake%20info_files/navbar.htm" frameborder="0" width="100%"></iframe></div>
+<script type="text/javascript" src="rake%20info_files/plusone.js" gapi_processed="true"></script>
+<script type="text/javascript">
+      gapi.load("gapi.iframes:gapi.iframes.style.bubble", function() {
+        if (gapi.iframes && gapi.iframes.getContext) {
+          gapi.iframes.getContext().openChild({
+              url: 'https://www.blogger.com/navbar.g?targetBlogID\x3d7583720\x26blogName\x3dSalmon+Run\x26publishMode\x3dPUBLISH_MODE_BLOGSPOT\x26navbarType\x3dLIGHT\x26layoutType\x3dLAYOUTS\x26searchRoot\x3dhttp://sujitpal.blogspot.com/search\x26blogLocale\x3den\x26v\x3d2\x26homepageUrl\x3dhttp://sujitpal.blogspot.com/\x26targetPostID\x3d2801403684823908983\x26blogPostOrPageUrl\x3dhttp://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html\x26vt\x3d-7471784091838583806',
+              where: document.getElementById("navbar-iframe-container"),
+              id: "navbar-iframe"
+          });
+        }
+      });
+    </script><script type="text/javascript">
+(function() {
+var script = document.createElement('script');
+script.type = 'text/javascript';
+script.src = '//pagead2.googlesyndication.com/pagead/js/google_top_exp.js';
+var head = document.getElementsByTagName('head')[0];
+if (head) {
+head.appendChild(script);
+}})();
+</script>
+</div></div>
+<div id="outer-wrapper"><div id="wrap2">
+<!-- skip links for text browsers -->
+<span id="skiplinks" style="display:none;">
+<a href="#main">skip to main </a> |
+      <a href="#sidebar">skip to sidebar</a>
+</span>
+<div id="header-wrapper">
+<div class="header section" id="header"><div class="widget Header" data-version="1" id="Header1">
+<div id="header-inner">
+<div class="titlewrapper">
+<h1 class="title">
+<a href="http://sujitpal.blogspot.com/">
+Salmon Run
+</a>
+</h1>
+</div>
+<div class="descriptionwrapper">
+<p class="description"><span>Swimming upstream on the technology tide, 
+one technology at a time. A collection of articles, tips, and random 
+musings on application development and system design.</span></p>
+</div>
+</div>
+</div></div>
+</div>
+<div id="content-wrapper">
+<div id="crosscol-wrapper" style="text-align:center">
+<div class="crosscol no-items section" id="crosscol"></div>
+</div>
+<div id="main-wrapper">
+<div class="main section" id="main"><div class="widget AdSense" data-version="1" id="AdSense1">
+<div class="widget-content">
+<script type="text/javascript"><!--
+google_ad_client="pub-5373479400272102";
+google_ad_host="pub-1556223355139109";
+google_ad_width=468;
+google_ad_height=60;
+google_ad_format="468x60_as";
+google_ad_type="text_image";
+google_ad_host_channel="00000+00031+00005";
+google_color_border="F6F6F6";
+google_color_bg="F6F6F6";
+google_color_link="B8A80D";
+google_color_url="999999";
+google_color_text="000000";
+//--></script>
+<script type="text/javascript" src="rake%20info_files/show_ads.js">
+</script>
+<div class="clear"></div>
+<span class="widget-item-control">
+<span class="item-control blog-admin">
+<a class="quickedit" href="http://www.blogger.com/rearrange?blogID=7583720&amp;widgetType=AdSense&amp;widgetId=AdSense1&amp;action=editWidget&amp;sectionId=main" onclick='return _WidgetManager._PopupConfig(document.getElementById("AdSense1"));' target="configAdSense1" title="Edit">
+<img alt="" src="rake%20info_files/icon18_wrench_allbkg.png" width="18" height="18">
+</a>
+</span>
+</span>
+<div class="clear"></div>
+</div>
+</div><div class="widget Blog" data-version="1" id="Blog1">
+<div class="blog-posts hfeed">
+<!--Can't find substitution for tag [adStart]-->
+<h2 class="date-header">Sunday, March 24, 2013</h2>
+<div class="post hentry">
+<a name="2801403684823908983"></a>
+<h3 class="post-title entry-title">
+<a href="http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html">Implementing the RAKE Algorithm with NLTK</a>
+</h3>
+<div class="post-header-line-1"></div>
+<div class="post-body entry-content">
+<p></p><div dir="ltr" style="text-align: left;" trbidi="on"><br>
+The Rapid Automatic Keyword Extraction (RAKE) algorithm extracts 
+keywords from text, by identifying runs of non-stopwords and then 
+scoring these phrases across the document. It requires no training, the 
+only input is a list of stop words for a given language, and a tokenizer
+ that splits the text into sentences and sentences into words.<br>
+<br>
+The RAKE algorithm is described in the book <a href="http://www.amazon.com/Text-Mining-Applications-Michael-Berry/dp/0470749822">Text Mining Applications and Theory</a> by Michael W Berry (<a href="http://pdfhome.org/BOOK-2010-Michael-W.-Berry-Text-Mining-Applications-and-Theory.pdf">free PDF</a>). There is a (relatively) well-known <a href="https://github.com/aneesha/RAKE">Python implementation</a> and somewhat less well-known <a href="http://text-analysis.sf.net/">Java implementation</a>.<br>
+<br>
+I started looking for something along these lines because I needed to 
+parse a block of text before vectorizing it and using the resulting 
+features as input to a predictive model. Vectorizing text is quite easy 
+with Scikit-Learn as shown in its <a href="http://scikit-learn.github.com/scikit-learn-tutorial/working_with_text_data.html">Text Processing Tutorial</a>.
+ What I was trying to do was to cut down the noise by extracting 
+keywords from the input text and passing a concatenation of the keywords
+ into the vectorizer. It didn't improve results by much in my 
+cross-validation tests, however, so I ended up not using it. But keyword
+ extraction can have other uses, so I decided to explore it a bit more.<br>
+<br>
+I had started off using the Python implementation directly from my 
+application code (by importing it as a module). I soon noticed that it 
+was doing a lot of extra work because it was implemented in pure Python.
+ I was using <a href="http://nltk.org/">NLTK</a> anyway for other stuff 
+in this application, so it made sense to convert it to also use NLTK so I
+ could hand off some of the work to NLTK's built-in functions. So here 
+is <i>another RAKE implementation</i>, this time using Python and NLTK.<br>
+<br>
+<table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre>1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93</pre></div></td><td class="code"><div class="highlight"><pre><span class="c"># Adapted from: github.com/aneesha/RAKE/rake.py</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">nltk</span>
+<span class="kn">import</span> <span class="nn">string</span>
+
+<span class="k">def</span> <span class="nf">isPunct</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+  <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">word</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">string</span><span class="o">.</span><span class="n">punctuation</span>
+
+<span class="k">def</span> <span class="nf">isNumeric</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+  <span class="k">try</span><span class="p">:</span>
+    <span class="nb">float</span><span class="p">(</span><span class="n">word</span><span class="p">)</span> <span class="k">if</span> <span class="s">'.'</span> <span class="ow">in</span> <span class="n">word</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">True</span>
+  <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+    <span class="k">return</span> <span class="bp">False</span>
+
+<span class="k">class</span> <span class="nc">RakeKeywordExtractor</span><span class="p">:</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">stopwords</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">nltk</span><span class="o">.</span><span class="n">corpus</span><span class="o">.</span><span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">())</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">top_fraction</span> <span class="o">=</span> <span class="mi">1</span> <span class="c"># consider top third candidate keywords by score</span>
+
+  <span class="k">def</span> <span class="nf">_generate_candidate_keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">):</span>
+    <span class="n">phrase_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sentences</span><span class="p">:</span>
+      <span class="n">words</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s">"|"</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopwords</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span>
+        <span class="n">nltk</span><span class="o">.</span><span class="n">word_tokenize</span><span class="p">(</span><span class="n">sentence</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
+      <span class="n">phrase</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">word</span> <span class="o">==</span> <span class="s">"|"</span> <span class="ow">or</span> <span class="n">isPunct</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+          <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">phrase</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">phrase_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phrase</span><span class="p">)</span>
+            <span class="n">phrase</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">phrase</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">phrase_list</span>
+
+  <span class="k">def</span> <span class="nf">_calculate_word_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phrase_list</span><span class="p">):</span>
+    <span class="n">word_freq</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">FreqDist</span><span class="p">()</span>
+    <span class="n">word_degree</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">FreqDist</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">phrase</span> <span class="ow">in</span> <span class="n">phrase_list</span><span class="p">:</span>
+      <span class="n">degree</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="n">isNumeric</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">phrase</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span>
+      <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">phrase</span><span class="p">:</span>
+        <span class="n">word_freq</span><span class="o">.</span><span class="n">inc</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+        <span class="n">word_degree</span><span class="o">.</span><span class="n">inc</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">degree</span><span class="p">)</span> <span class="c"># other words</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">word_freq</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+      <span class="n">word_degree</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">=</span> <span class="n">word_degree</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">+</span> <span class="n">word_freq</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="c"># itself</span>
+    <span class="c"># word score = deg(w) / freq(w)</span>
+    <span class="n">word_scores</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">word_freq</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+      <span class="n">word_scores</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">=</span> <span class="n">word_degree</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">/</span> <span class="n">word_freq</span><span class="p">[</span><span class="n">word</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">word_scores</span>
+
+  <span class="k">def</span> <span class="nf">_calculate_phrase_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phrase_list</span><span class="p">,</span> <span class="n">word_scores</span><span class="p">):</span>
+    <span class="n">phrase_scores</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">phrase</span> <span class="ow">in</span> <span class="n">phrase_list</span><span class="p">:</span>
+      <span class="n">phrase_score</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">phrase</span><span class="p">:</span>
+        <span class="n">phrase_score</span> <span class="o">+=</span> <span class="n">word_scores</span><span class="p">[</span><span class="n">word</span><span class="p">]</span>
+      <span class="n">phrase_scores</span><span class="p">[</span><span class="s">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">phrase</span><span class="p">)]</span> <span class="o">=</span> <span class="n">phrase_score</span>
+    <span class="k">return</span> <span class="n">phrase_scores</span>
+    
+  <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">incl_scores</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="n">sentences</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">sent_tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">phrase_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_candidate_keywords</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
+    <span class="n">word_scores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_word_scores</span><span class="p">(</span><span class="n">phrase_list</span><span class="p">)</span>
+    <span class="n">phrase_scores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_phrase_scores</span><span class="p">(</span>
+      <span class="n">phrase_list</span><span class="p">,</span> <span class="n">word_scores</span><span class="p">)</span>
+    <span class="n">sorted_phrase_scores</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">phrase_scores</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(),</span>
+      <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">n_phrases</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sorted_phrase_scores</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">incl_scores</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">sorted_phrase_scores</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">int</span><span class="p">(</span><span class="n">n_phrases</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">top_fraction</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">sorted_phrase_scores</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">int</span><span class="p">(</span><span class="n">n_phrases</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">top_fraction</span><span class="p">)])</span>
+
+<span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
+  <span class="n">rake</span> <span class="o">=</span> <span class="n">RakeKeywordExtractor</span><span class="p">()</span>
+  <span class="n">keywords</span> <span class="o">=</span> <span class="n">rake</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="s">"""</span>
+<span class="s">Compatibility of systems of linear constraints over the set of natural </span>
+<span class="s">numbers. Criteria of compatibility of a system of linear Diophantine </span>
+<span class="s">equations, strict inequations, and nonstrict inequations are considered. </span>
+<span class="s">Upper bounds for components of a minimal set of solutions and algorithms </span>
+<span class="s">of construction of minimal generating sets of solutions for all types of </span>
+<span class="s">systems are given. These criteria and the corresponding algorithms for </span>
+<span class="s">constructing a minimal supporting set of solutions can be used in solving </span>
+<span class="s">all the considered types of systems and systems of mixed types.</span>
+<span class="s">  """</span><span class="p">,</span> <span class="n">incl_scores</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+  <span class="k">print</span> <span class="n">keywords</span>
+  
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">"__main__"</span><span class="p">:</span>
+  <span class="n">test</span><span class="p">()</span>
+</pre></div></td></tr>
+</tbody></table><br>
+The results are nearly identical, and I hope you will agree that the 
+code is much more readable (if you are familiar with the NLTK API, of 
+course). Here is the results from the original RAKE implementation, 
+compared to my NLTK based implementation.<br>
+<br>
+<table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre>1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19</pre></div></td><td class="code"><div class="highlight"><pre><span class="gp">sujit@cyclone:src$</span> python rake.py
+[('minimal generating sets', 8.6666666666666661), 
+ ('linear diophantine equations', 8.5), 
+ ('minimal supporting set', 7.6666666666666661), 
+ ('minimal set', 4.6666666666666661), 
+ ('linear constraints', 4.5), 
+ ('upper bounds', 4.0), 
+ ('natural numbers', 4.0), 
+ ('nonstrict inequations', 4.0)]
+<span class="gp">sujit@cyclone:src$</span> python rake_nltk.py
+[('minimal generating sets', 8.6666666666666661), 
+ ('linear diophantine equations', 8.5), 
+ ('minimal supporting set', 7.6666666666666661), 
+ ('minimal set', 4.6666666666666661), 
+ ('linear constraints', 4.5), 
+ ('upper bounds', 4.0), 
+ ('natural numbers', 4.0), 
+ ('nonstrict inequations', 4.0), 
+ ('strict inequations', 4.0)]
+</pre></div></td></tr>
+</tbody></table><br>
+As you can see, the NLTK based version returns one more candidate 
+keyword. This is because it finds 27 candidate keywords instead of 24 
+keywords. I believe its related to the way the original version handles 
+punctuation (ie as part of the preceding word) compared to NLTK's 
+approach (as a separate token). In any case, I am not convinced its a 
+bug because one of extra keywords returned was "corresponding 
+algorithms" with score 3.5, which seems reasonable.<br>
+<br>
+An optimization on top of this is to find candidate keywords that span a
+ stopword. So the next step would involve storing the text into a Lucene
+ index and hitting it with n<sup>2</sup> SpanQuery calls where n is the number of extracted keywords, something <a href="http://sujitpal.blogspot.com/2011/08/implementing-concordance-with-lucene.html">along these lines</a>.<br>
+<br>
+<br>
+</div><p></p>
+<div style="clear: both;"></div>
+</div>
+<div class="post-footer">
+<p class="post-footer-line post-footer-line-1"><span class="post-author vcard">
+Posted by
+<span class="fn">Sujit Pal</span>
+</span>
+<span class="post-timestamp">
+at
+<a class="timestamp-link" href="http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html" rel="bookmark" title="permanent link"><abbr class="published" title="2013-03-24T16:07:00-07:00">4:07 PM</abbr></a>
+</span>
+<span class="post-comment-link">
+</span>
+<span class="post-icons">
+</span>
+</p>
+<p class="post-footer-line post-footer-line-2"><span class="post-backlinks post-comment-link">
+</span>
+</p>
+<p class="post-footer-line post-footer-line-3"><span class="post-labels">
+Labels:
+<a href="http://sujitpal.blogspot.com/search/label/data-mining" rel="tag">data-mining</a>,
+<a href="http://sujitpal.blogspot.com/search/label/nlp" rel="tag">nlp</a>,
+<a href="http://sujitpal.blogspot.com/search/label/python" rel="tag">python</a>
+</span>
+</p>
+<p class="post-footer-line post-footer-line-3">
+        Share/Save:
+      <span class="post-social-bookmarking">
+<a href="http://digg.com/submit?phase=2&amp;url=http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html&amp;title=Implementing%20the%20RAKE%20Algorithm%20with%20NLTK" target="_blank"><img alt="Digg" src="rake%20info_files/digg.png" title="Digg" border="0"></a>
+<a href="http://technorati.com/faves?add=http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html" target="_blank"><img alt="Technorati" src="rake%20info_files/technorati.png" title="Technorati" border="0"></a>
+<a href="http://del.icio.us/post?url=http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html&amp;title=Implementing%20the%20RAKE%20Algorithm%20with%20NLTK" target="_blank"><img alt="Delicious" src="rake%20info_files/delicious.png" title="Del.icio.us" border="0"></a>
+<a href="http://www.stumbleupon.com/submit?url=http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html&amp;title=Implementing%20the%20RAKE%20Algorithm%20with%20NLTK" target="_blank"><img alt="StumbleUpon" src="rake%20info_files/stumbleupon.png" title="Stumble Upon" border="0"></a>
+<a href="http://reddit.com/submit?url=http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html&amp;title=Implementing%20the%20RAKE%20Algorithm%20with%20NLTK" target="_blank"><img alt="Reddit" src="rake%20info_files/reddit.png" title="reddit" border="0"></a>
+<a href="http://www.blinklist.com/index.php?Action=Blink/addblink.php&amp;Url=http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html&amp;Title=Implementing%20the%20RAKE%20Algorithm%20with%20NLTK" target="_blank"><img alt="BlinkList" src="rake%20info_files/blinklist.png" title="BlinkList" border="0"></a>
+<a href="http://www.furl.net/storeIt.jsp?t=Implementing%20the%20RAKE%20Algorithm%20with%20NLTK&amp;u=http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html" target="_blank"><img alt="Furl" src="rake%20info_files/furl.png" title="Furl" border="0"></a>
+<a href="http://www.mixx.com/submit?page_url=Implementing%20the%20RAKE%20Algorithm%20with%20NLTK&amp;u=http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html" target="_blank"><img alt="Mixx" src="rake%20info_files/mixx.png" title="Mixx" border="0"></a>
+<a href="http://www.facebook.com/sharer.php?u=Implementing%20the%20RAKE%20Algorithm%20with%20NLTK&amp;u=http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html" target="_blank"><img alt="Facebook" src="rake%20info_files/facebook.png" title="facebook" border="0"></a>
+<a href="http://www.google.com/bookmarks/mark?op=edit&amp;bkmk=Implementing%20the%20RAKE%20Algorithm%20with%20NLTK&amp;u=http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html" target="_blank"><img alt="Google Bookmark" src="rake%20info_files/googlebookmark.png" title="Google Bookmark" border="0"></a>
+<a href="http://myweb2.search.yahoo.com/myresults/bookmarklet?t=Implementing%20the%20RAKE%20Algorithm%20with%20NLTK&amp;u=http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html" target="_blank"><img alt="Yahoo" src="rake%20info_files/yahoomyweb.png" title="Yahoo Myweb" border="0"></a>
+</span>
+</p>
+</div>
+</div>
+<div class="comments" id="comments">
+<a name="comments"></a>
+<h4>
+12
+comments (moderated to prevent spam):
+          
+</h4>
+<dl id="comments-block">
+<dt class="comment-author " id="c3993011877250576896">
+<a name="c3993011877250576896"></a>
+<a href="https://www.blogger.com/profile/01191877626382315959" rel="nofollow">Muhammad Mubasher</a>
+said...
+</dt>
+<dd class="comment-body">
+<p>Very nice work, can you please share it in repository? Or should I use it by copy pasting.</p>
+</dd>
+<dd class="comment-footer">
+<span class="comment-timestamp">
+<a href="http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html?showComment=1370849435135#c3993011877250576896" title="comment permalink">
+6/10/2013 12:30 AM
+</a>
+<span class="item-control blog-admin pid-2068072122">
+<a href="https://www.blogger.com/delete-comment.g?blogID=7583720&amp;postID=3993011877250576896" title="Delete Comment">
+<img src="rake%20info_files/icon_delete13.gif">
+</a>
+</span>
+</span>
+</dd>
+<dt class="comment-author blog-author" id="c3345019729378353290">
+<a name="c3345019729378353290"></a>
+<a href="https://www.blogger.com/profile/06835223352394332155" rel="nofollow">Sujit Pal</a>
+said...
+</dt>
+<dd class="comment-body">
+<p>Hi Muhammad, thanks for the kind words. Its available on github here:
+ 
+https://github.com/sujitpal/mlia-examples/blob/master/src/salary_pred/rake_nltk.py.
+ Its part of another mini-project which did not work out too well :-), 
+but this part works fine. Oh and BTW, no worries about the multiple 
+comments, I get that a lot, I guess the message is not very visible...<br></p>
+</dd>
+<dd class="comment-footer">
+<span class="comment-timestamp">
+<a href="http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html?showComment=1370895209023#c3345019729378353290" title="comment permalink">
+6/10/2013 1:13 PM
+</a>
+<span class="item-control blog-admin pid-907146038">
+<a href="https://www.blogger.com/delete-comment.g?blogID=7583720&amp;postID=3345019729378353290" title="Delete Comment">
+<img src="rake%20info_files/icon_delete13.gif">
+</a>
+</span>
+</span>
+</dd>
+<dt class="comment-author " id="c3617961055233713657">
+<a name="c3617961055233713657"></a>
+Vinod Nambiar
+said...
+</dt>
+<dd class="comment-body">
+<p>Dear Sujith,<br><br>I am new entrant into the text analysis area. Due
+ to my curiosity, I am trying to explore this. I would like to ask a 
+question. Can we have any control on the engines like RAKE etc to use 
+our own vocabulary to search for. After searching the net, I could trace
+ that it uses its own logic to pick that. <br><br>Look forward to hear from you.<br></p>
+</dd>
+<dd class="comment-footer">
+<span class="comment-timestamp">
+<a href="http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html?showComment=1400441423521#c3617961055233713657" title="comment permalink">
+5/18/2014 12:30 PM
+</a>
+<span class="item-control blog-admin pid-1459074298">
+<a href="https://www.blogger.com/delete-comment.g?blogID=7583720&amp;postID=3617961055233713657" title="Delete Comment">
+<img src="rake%20info_files/icon_delete13.gif">
+</a>
+</span>
+</span>
+</dd>
+<dt class="comment-author blog-author" id="c5096725545473845643">
+<a name="c5096725545473845643"></a>
+<a href="https://www.blogger.com/profile/06835223352394332155" rel="nofollow">Sujit Pal</a>
+said...
+</dt>
+<dd class="comment-body">
+<p>Hi Vinod, you can't have your own dictionary with Rake, it uses a 
+property of keywords. But there are other extraction tools like <a href="http://www.nzdl.org/Kea/" rel="nofollow">Kea</a> which make use of a controlled vocabulary.</p>
+</dd>
+<dd class="comment-footer">
+<span class="comment-timestamp">
+<a href="http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html?showComment=1400447802294#c5096725545473845643" title="comment permalink">
+5/18/2014 2:16 PM
+</a>
+<span class="item-control blog-admin pid-907146038">
+<a href="https://www.blogger.com/delete-comment.g?blogID=7583720&amp;postID=5096725545473845643" title="Delete Comment">
+<img src="rake%20info_files/icon_delete13.gif">
+</a>
+</span>
+</span>
+</dd>
+<dt class="comment-author " id="c2945541834585585172">
+<a name="c2945541834585585172"></a>
+Vinod Nambiar
+said...
+</dt>
+<dd class="comment-body">
+<p>Dear Sujith,<br><br>Much appreciate you for the speedy response. I'll explore the KEA instead of RAKE. <br><br>Thank you once again. <br><br>Thanks &amp; Regards,<br>Vinod Nambiar.</p>
+</dd>
+<dd class="comment-footer">
+<span class="comment-timestamp">
+<a href="http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html?showComment=1400462196776#c2945541834585585172" title="comment permalink">
+5/18/2014 6:16 PM
+</a>
+<span class="item-control blog-admin pid-1459074298">
+<a href="https://www.blogger.com/delete-comment.g?blogID=7583720&amp;postID=2945541834585585172" title="Delete Comment">
+<img src="rake%20info_files/icon_delete13.gif">
+</a>
+</span>
+</span>
+</dd>
+<dt class="comment-author blog-author" id="c8192542559844728450">
+<a name="c8192542559844728450"></a>
+<a href="https://www.blogger.com/profile/06835223352394332155" rel="nofollow">Sujit Pal</a>
+said...
+</dt>
+<dd class="comment-body">
+<p>You're welcome Vinod. Kea is on my list of things to look at but I 
+haven't gotten around to it yet. If you write up your findings, would 
+appreciate a pointer to the URL.<br></p>
+</dd>
+<dd class="comment-footer">
+<span class="comment-timestamp">
+<a href="http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html?showComment=1400466523136#c8192542559844728450" title="comment permalink">
+5/18/2014 7:28 PM
+</a>
+<span class="item-control blog-admin pid-907146038">
+<a href="https://www.blogger.com/delete-comment.g?blogID=7583720&amp;postID=8192542559844728450" title="Delete Comment">
+<img src="rake%20info_files/icon_delete13.gif">
+</a>
+</span>
+</span>
+</dd>
+<dt class="comment-author " id="c2283888251765515470">
+<a name="c2283888251765515470"></a>
+Vinod Nambiar
+said...
+</dt>
+<dd class="comment-body">
+<p>Sure. Will keep you posted.<br><br>One question, Is there are way we 
+can link custom dictionary with RAKE ? Any possibilities of adding 
+additional code or modules ?<br><br>Just a thought.<br><br>Thanks &amp; Regards,<br>Vinod Nambiar.</p>
+</dd>
+<dd class="comment-footer">
+<span class="comment-timestamp">
+<a href="http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html?showComment=1400508049128#c2283888251765515470" title="comment permalink">
+5/19/2014 7:00 AM
+</a>
+<span class="item-control blog-admin pid-1552948617">
+<a href="https://www.blogger.com/delete-comment.g?blogID=7583720&amp;postID=2283888251765515470" title="Delete Comment">
+<img src="rake%20info_files/icon_delete13.gif">
+</a>
+</span>
+</span>
+</dd>
+<dt class="comment-author blog-author" id="c7724517156403415597">
+<a name="c7724517156403415597"></a>
+<a href="https://www.blogger.com/profile/06835223352394332155" rel="nofollow">Sujit Pal</a>
+said...
+</dt>
+<dd class="comment-body">
+<p>Thanks. To answer your question, Rake looks for frequent runs of 
+words delimited by stopwords in sentences. I guess you could redefine 
+the stopwords for your corpus, or filter the output through a custom 
+dictionary. Alternatively you could cap the number of words you will 
+allow a keyword to have (top and bottom). Can't think of any others, I 
+guess it would depend on your use case.</p>
+</dd>
+<dd class="comment-footer">
+<span class="comment-timestamp">
+<a href="http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html?showComment=1400521734475#c7724517156403415597" title="comment permalink">
+5/19/2014 10:48 AM
+</a>
+<span class="item-control blog-admin pid-907146038">
+<a href="https://www.blogger.com/delete-comment.g?blogID=7583720&amp;postID=7724517156403415597" title="Delete Comment">
+<img src="rake%20info_files/icon_delete13.gif">
+</a>
+</span>
+</span>
+</dd>
+<dt class="comment-author " id="c1553093678088459135">
+<a name="c1553093678088459135"></a>
+<a href="https://www.blogger.com/profile/13963035081840139192" rel="nofollow">lima subramanian</a>
+said...
+</dt>
+<dd class="comment-body">
+<p>is there any pseudo code available..?????</p>
+</dd>
+<dd class="comment-footer">
+<span class="comment-timestamp">
+<a href="http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html?showComment=1475134504825#c1553093678088459135" title="comment permalink">
+9/29/2016 12:35 AM
+</a>
+<span class="item-control blog-admin pid-2145752937">
+<a href="https://www.blogger.com/delete-comment.g?blogID=7583720&amp;postID=1553093678088459135" title="Delete Comment">
+<img src="rake%20info_files/icon_delete13.gif">
+</a>
+</span>
+</span>
+</dd>
+<dt class="comment-author blog-author" id="c1752286202370163217">
+<a name="c1752286202370163217"></a>
+<a href="https://www.blogger.com/profile/06835223352394332155" rel="nofollow">Sujit Pal</a>
+said...
+</dt>
+<dd class="comment-body">
+<p>Hi lima, I believe there is pseudo code in the Berry book.<br></p>
+</dd>
+<dd class="comment-footer">
+<span class="comment-timestamp">
+<a href="http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html?showComment=1475722227970#c1752286202370163217" title="comment permalink">
+10/05/2016 7:50 PM
+</a>
+<span class="item-control blog-admin pid-907146038">
+<a href="https://www.blogger.com/delete-comment.g?blogID=7583720&amp;postID=1752286202370163217" title="Delete Comment">
+<img src="rake%20info_files/icon_delete13.gif">
+</a>
+</span>
+</span>
+</dd>
+<dt class="comment-author " id="c7267154527630168109">
+<a name="c7267154527630168109"></a>
+<a href="https://www.blogger.com/profile/03076419910688243381" rel="nofollow">Victoria Stuart</a>
+said...
+</dt>
+<dd class="comment-body">
+<p>Nice work; thanks!  Updated code (Python 3; ...) here: https://github.com/victoriastuart/mlia-examples</p>
+</dd>
+<dd class="comment-footer">
+<span class="comment-timestamp">
+<a href="http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html?showComment=1510619009215#c7267154527630168109" title="comment permalink">
+11/13/2017 4:23 PM
+</a>
+<span class="item-control blog-admin pid-1969123573">
+<a href="https://www.blogger.com/delete-comment.g?blogID=7583720&amp;postID=7267154527630168109" title="Delete Comment">
+<img src="rake%20info_files/icon_delete13.gif">
+</a>
+</span>
+</span>
+</dd>
+<dt class="comment-author blog-author" id="c152719459117341163">
+<a name="c152719459117341163"></a>
+<a href="https://www.blogger.com/profile/06835223352394332155" rel="nofollow">Sujit Pal</a>
+said...
+</dt>
+<dd class="comment-body">
+<p>Thank you, this is going to be very useful for me... was planning to 
+use RAKE for keyword extraction in Spark and our PySpark platform is 
+Python 3.x, so this would be a drop in replacement.</p>
+</dd>
+<dd class="comment-footer">
+<span class="comment-timestamp">
+<a href="http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html?showComment=1510767917481#c152719459117341163" title="comment permalink">
+11/15/2017 9:45 AM
+</a>
+<span class="item-control blog-admin pid-907146038">
+<a href="https://www.blogger.com/delete-comment.g?blogID=7583720&amp;postID=152719459117341163" title="Delete Comment">
+<img src="rake%20info_files/icon_delete13.gif">
+</a>
+</span>
+</span>
+</dd>
+</dl>
+<p class="comment-footer">
+<a href="https://www.blogger.com/comment.g?blogID=7583720&amp;postID=2801403684823908983" onclick="">Post a Comment</a>
+</p>
+<div id="backlinks-container">
+<div id="Blog1_backlinks-container"><a name="links"></a><h4>Links to this post</h4>
+<p class="comment-footer">
+<a class="comment-link" href="https://www.blogger.com/blog-this.g" id="Blog1_backlinks-create-link" target="_blank">Create a Link</a>
+</p>
+</div>
+</div>
+</div>
+<!--Can't find substitution for tag [adEnd]-->
+</div>
+<div class="blog-pager" id="blog-pager">
+<span id="blog-pager-newer-link">
+<a class="blog-pager-newer-link" href="http://sujitpal.blogspot.com/2013/03/a-hmm-based-gene-tagger-using-nltk.html" id="Blog1_blog-pager-newer-link" title="Newer Post">Newer Post</a>
+</span>
+<span id="blog-pager-older-link">
+<a class="blog-pager-older-link" href="http://sujitpal.blogspot.com/2013/03/the-wikipedia-bob-alice-hmm-example.html" id="Blog1_blog-pager-older-link" title="Older Post">Older Post</a>
+</span>
+<a class="home-link" href="http://sujitpal.blogspot.com/">Home</a>
+</div>
+<div class="clear"></div>
+<div class="post-feeds">
+<div class="feed-links">
+Subscribe to:
+<a class="feed-link" href="http://sujitpal.blogspot.com/feeds/2801403684823908983/comments/default" target="_blank" type="application/atom+xml">Post Comments (Atom)</a>
+</div>
+</div>
+</div></div>
+</div>
+<div id="sidebar-wrapper">
+<div class="sidebar section" id="sidebar"><div class="widget BlogArchive" data-version="1" id="BlogArchive1">
+<h2>Posts</h2>
+<div class="widget-content">
+<div id="ArchiveList">
+<div id="BlogArchive1_ArchiveList">
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2017/">
+2017
+</a>
+<span class="post-count" dir="ltr">(14)</span>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2017/10/">
+October
+</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2017/09/">
+September
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2017/08/">
+August
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2017/07/">
+July
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2017/06/">
+June
+</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2017/05/">
+May
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2017/04/">
+April
+</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2017/02/">
+February
+</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2017/01/">
+January
+</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2016/">
+2016
+</a>
+<span class="post-count" dir="ltr">(22)</span>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2016/12/">
+December
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2016/11/">
+November
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2016/10/">
+October
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2016/09/">
+September
+</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2016/08/">
+August
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2016/07/">
+July
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2016/06/">
+June
+</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2016/05/">
+May
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2016/04/">
+April
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2016/03/">
+March
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2016/02/">
+February
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2015/">
+2015
+</a>
+<span class="post-count" dir="ltr">(17)</span>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2015/11/">
+November
+</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2015/10/">
+October
+</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2015/09/">
+September
+</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2015/08/">
+August
+</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2015/07/">
+July
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2015/06/">
+June
+</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2015/05/">
+May
+</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2015/04/">
+April
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2015/03/">
+March
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2015/02/">
+February
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2015/01/">
+January
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2014/">
+2014
+</a>
+<span class="post-count" dir="ltr">(39)</span>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2014/12/">
+December
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2014/11/">
+November
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2014/10/">
+October
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2014/09/">
+September
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2014/08/">
+August
+</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2014/07/">
+July
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2014/05/">
+May
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2014/04/">
+April
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2014/03/">
+March
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2014/02/">
+February
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2014/01/">
+January
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate expanded">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy toggle-open">
+
+        ▼&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2013/">
+2013
+</a>
+<span class="post-count" dir="ltr">(37)</span>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2013/12/">
+December
+</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2013/11/">
+November
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2013/10/">
+October
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2013/09/">
+September
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2013/08/">
+August
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2013/07/">
+July
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2013/06/">
+June
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2013/05/">
+May
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2013/04/">
+April
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate expanded">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy toggle-open">
+
+        ▼&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2013/03/">
+March
+</a>
+<span class="post-count" dir="ltr">(5)</span>
+<ul class="posts">
+<li><a href="http://sujitpal.blogspot.com/2013/03/a-hmm-based-gene-tagger-using-nltk.html">A HMM based Gene Tagger using NLTK</a></li>
+<li><a href="http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html">Implementing the RAKE Algorithm with NLTK</a></li>
+<li><a href="http://sujitpal.blogspot.com/2013/03/the-wikipedia-bob-alice-hmm-example.html">The Wikipedia Bob Alice HMM example using scikit-l...</a></li>
+<li><a href="http://sujitpal.blogspot.com/2013/03/solr-custom-ranking-with-function.html">Solr: Custom Ranking with Function Queries</a></li>
+<li><a href="http://sujitpal.blogspot.com/2013/03/jboss-rules-in-database-take-2.html">Drools Rules in a Database, Take 2</a></li>
+</ul>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2013/02/">
+February
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2013/01/">
+January
+</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2012/">
+2012
+</a>
+<span class="post-count" dir="ltr">(26)</span>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2012/12/">
+December
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2012/11/">
+November
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2012/10/">
+October
+</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2012/09/">
+September
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2012/08/">
+August
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2012/07/">
+July
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2012/06/">
+June
+</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2012/04/">
+April
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2012/03/">
+March
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2012/02/">
+February
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2012/01/">
+January
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2011/">
+2011
+</a>
+<span class="post-count" dir="ltr">(37)</span>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2011/12/">
+December
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2011/11/">
+November
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2011/10/">
+October
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2011/09/">
+September
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2011/08/">
+August
+</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2011/07/">
+July
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2011/06/">
+June
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2011/05/">
+May
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2011/04/">
+April
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2011/03/">
+March
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2011/02/">
+February
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2011/01/">
+January
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2010/">
+2010
+</a>
+<span class="post-count" dir="ltr">(37)</span>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2010/12/">
+December
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2010/11/">
+November
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2010/10/">
+October
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2010/09/">
+September
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2010/08/">
+August
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2010/07/">
+July
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2010/06/">
+June
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2010/05/">
+May
+</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2010/03/">
+March
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2010/02/">
+February
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2010/01/">
+January
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2009/">
+2009
+</a>
+<span class="post-count" dir="ltr">(44)</span>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2009/12/">
+December
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2009/11/">
+November
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2009/10/">
+October
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2009/09/">
+September
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2009/08/">
+August
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2009/07/">
+July
+</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2009/06/">
+June
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2009/05/">
+May
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2009/04/">
+April
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2009/03/">
+March
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2009/02/">
+February
+</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2009/01/">
+January
+</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2008/">
+2008
+</a>
+<span class="post-count" dir="ltr">(49)</span>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2008/12/">
+December
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2008/11/">
+November
+</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2008/10/">
+October
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2008/09/">
+September
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2008/08/">
+August
+</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2008/07/">
+July
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2008/06/">
+June
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2008/05/">
+May
+</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2008/04/">
+April
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2008/03/">
+March
+</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2008/02/">
+February
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2008/01/">
+January
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2007/">
+2007
+</a>
+<span class="post-count" dir="ltr">(47)</span>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2007/12/">
+December
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2007/11/">
+November
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2007/10/">
+October
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2007/09/">
+September
+</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2007/08/">
+August
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2007/07/">
+July
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2007/06/">
+June
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2007/05/">
+May
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2007/04/">
+April
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2007/03/">
+March
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2007/02/">
+February
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2007/01/">
+January
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2006/">
+2006
+</a>
+<span class="post-count" dir="ltr">(44)</span>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2006/12/">
+December
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2006/11/">
+November
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2006/10/">
+October
+</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2006/09/">
+September
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2006/08/">
+August
+</a>
+<span class="post-count" dir="ltr">(2)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2006/07/">
+July
+</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2006/06/">
+June
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2006/05/">
+May
+</a>
+<span class="post-count" dir="ltr">(5)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2006/04/">
+April
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2006/03/">
+March
+</a>
+<span class="post-count" dir="ltr">(4)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2006/02/">
+February
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2006/01/">
+January
+</a>
+<span class="post-count" dir="ltr">(3)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2005/">
+2005
+</a>
+<span class="post-count" dir="ltr">(1)</span>
+<ul class="hierarchy">
+<li class="archivedate collapsed">
+<a class="toggle" href="javascript:void(0)">
+<span class="zippy">
+
+        ►&nbsp;
+      
+</span>
+</a>
+<a class="post-count-link" href="http://sujitpal.blogspot.com/2005/03/">
+March
+</a>
+<span class="post-count" dir="ltr">(1)</span>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="clear"></div>
+<span class="widget-item-control">
+<span class="item-control blog-admin">
+<a class="quickedit" href="http://www.blogger.com/rearrange?blogID=7583720&amp;widgetType=BlogArchive&amp;widgetId=BlogArchive1&amp;action=editWidget&amp;sectionId=sidebar" onclick='return _WidgetManager._PopupConfig(document.getElementById("BlogArchive1"));' target="configBlogArchive1" title="Edit">
+<img alt="" src="rake%20info_files/icon18_wrench_allbkg.png" width="18" height="18">
+</a>
+</span>
+</span>
+<div class="clear"></div>
+</div>
+</div><div class="widget Label" data-version="1" id="Label1">
+<h2>Labels</h2>
+<div class="widget-content cloud-label-widget-content">
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/.net">.net</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/acegi">acegi</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/actor">actor</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/actorfoundry">actorfoundry</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/actorsguild">actorsguild</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/ajax">ajax</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/alfresco">alfresco</a>
+</span>
+<span class="label-size label-size-4">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/algorithms">algorithms</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/annotations">annotations</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/ant">ant</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/apache-cxf">apache-cxf</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/aspectj">aspectj</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/atom">atom</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/awk">awk</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/berkeley-db">berkeley-db</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/bitfauna">bitfauna</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/bitsets">bitsets</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/blogger">blogger</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/burlap">burlap</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/c%23">c#</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/caching">caching</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/cascading">cascading</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/cassandra">cassandra</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/cherrypy">cherrypy</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/classification">classification</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/clisp">clisp</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/clojure">clojure</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/cloud">cloud</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/clustering">clustering</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/cms">cms</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/collections15">collections15</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/collocation">collocation</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/commons-beanutils">commons-beanutils</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/commons-collections">commons-collections</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/commons-digester">commons-digester</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/commons-httpclient">commons-httpclient</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/commons-math">commons-math</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/concept-mapping">concept-mapping</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/concurrent">concurrent</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/conditional-probability">conditional-probability</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/content-management">content-management</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/corenlp">corenlp</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/cosine-similarity">cosine-similarity</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/crawler">crawler</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/cusp">cusp</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/cx_oracle">cx_oracle</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/data-management">data-management</a>
+</span>
+<span class="label-size label-size-4">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/data-mining">data-mining</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/data-structure">data-structure</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/databases">databases</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/dbunit">dbunit</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/debugging">debugging</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/decorator-pattern">decorator-pattern</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/deep-learning">deep-learning</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/development">development</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/dijkstra">dijkstra</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/dimensionality-reduction">dimensionality-reduction</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/distributed-computing">distributed-computing</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/django">django</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/documentation">documentation</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/dojo">dojo</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/drupal">drupal</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/dwr">dwr</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/dynabean">dynabean</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/ec2">ec2</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/eclipse">eclipse</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/edb">edb</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/elasticsearch">elasticsearch</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/emacs">emacs</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/embedded-databases">embedded-databases</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/enterprisedb">enterprisedb</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/etl">etl</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/eventbus">eventbus</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/events">events</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/facets">facets</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/fedora">fedora</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/feeds">feeds</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/functors">functors</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/garbage-collection">garbage-collection</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/gdata">gdata</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/general">general</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/generics">generics</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/genetic-algorithms">genetic-algorithms</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/gensim">gensim</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/gnuplot">gnuplot</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/google-web-toolkit">google-web-toolkit</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/graph">graph</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/gwt">gwt</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/hadoop">hadoop</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/hbase">hbase</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/hessian">hessian</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/hibernate">hibernate</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/hidden-markov-model">hidden-markov-model</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/html">html</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/httpclient">httpclient</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/image-processing">image-processing</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/imap">imap</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/indexing">indexing</a>
+</span>
+<span class="label-size label-size-4">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/information-retrieval">information-retrieval</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/inverse-document-frequency">inverse-document-frequency</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/inversion-of-control">inversion-of-control</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/ir">ir</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/j2ee">j2ee</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jaccard-similarity">jaccard-similarity</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jackrabbit">jackrabbit</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jahmm">jahmm</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jama">jama</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jatha">jatha</a>
+</span>
+<span class="label-size label-size-5">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/java">java</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/javaconfig">javaconfig</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/javamail">javamail</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/javascript">javascript</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/javaspaces">javaspaces</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jax">jax</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jazzy">jazzy</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jcr">jcr</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jdbc">jdbc</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jdee">jdee</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jdom">jdom</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jetlang">jetlang</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jetty">jetty</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jfreechart">jfreechart</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jgrapht">jgrapht</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jlisp">jlisp</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jms">jms</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jmx">jmx</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/journaling">journaling</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jpa">jpa</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/json">json</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jsp">jsp</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/junit">junit</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jvm">jvm</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jwi">jwi</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/jython">jython</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/k-means">k-means</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/keras">keras</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/kettle">kettle</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/kilim">kilim</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/larvalabs">larvalabs</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/latent-semantic-indexing">latent-semantic-indexing</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/lighttpd">lighttpd</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/linear-algebra">linear-algebra</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/lingpipe">lingpipe</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/linux">linux</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/lisp">lisp</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/log-analysis">log-analysis</a>
+</span>
+<span class="label-size label-size-4">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/lucene">lucene</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/lucli">lucli</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/luke">luke</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/mac-os-x">mac-os-x</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/machine-learning">machine-learning</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/mahout">mahout</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/map-reduce">map-reduce</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/math">math</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/matplotlib">matplotlib</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/matrix">matrix</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/maven">maven</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/maven-plugin">maven-plugin</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/maven2">maven2</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/messaging">messaging</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/mockobjects">mockobjects</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/mojo">mojo</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/mongodb">mongodb</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/mono">mono</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/mule">mule</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/multithreading">multithreading</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/mvc">mvc</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/mysql">mysql</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/naive-bayes">naive-bayes</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/nearest-neighbor">nearest-neighbor</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/neo4j">neo4j</a>
+</span>
+<span class="label-size label-size-4">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/nlp">nlp</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/nltk">nltk</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/nosql">nosql</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/nutch">nutch</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/object-oriented-design">object-oriented-design</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/object-persistence">object-persistence</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/ontology">ontology</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/opennlp">opennlp</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/oracle">oracle</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/osworkflow">osworkflow</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/owl">owl</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/parallel">parallel</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/parser">parser</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/parser-toolkit">parser-toolkit</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/patterns">patterns</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/pca">pca</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/pelops">pelops</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/performance">performance</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/persistence">persistence</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/personalization">personalization</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/petri-net">petri-net</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/php">php</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/pos-tagging">pos-tagging</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/postgresql">postgresql</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/prevayler">prevayler</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/principal-component-analysis">principal-component-analysis</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/probability">probability</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/profiling">profiling</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/prolog">prolog</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/prototype">prototype</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/pygments">pygments</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/pylons">pylons</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/PyLucene">PyLucene</a>
+</span>
+<span class="label-size label-size-5">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/python">python</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/qdox">qdox</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/qt">qt</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/r-language">r-language</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/rcs">rcs</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/recommender">recommender</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/redhat">redhat</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/remoting">remoting</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/rest">rest</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/robert-sedgewick">robert-sedgewick</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/rome">rome</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/rome-custom-modules">rome-custom-modules</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/roo">roo</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/ror">ror</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/rss">rss</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/rsync">rsync</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/ruby-on-rails">ruby-on-rails</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/rules">rules</a>
+</span>
+<span class="label-size label-size-4">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/scala">scala</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/scalding">scalding</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/scikit-learn">scikit-learn</a>
+</span>
+<span class="label-size label-size-4">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/scripting">scripting</a>
+</span>
+<span class="label-size label-size-4">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/search">search</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/security">security</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/semantic-web">semantic-web</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/shortest-path">shortest-path</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/similarity">similarity</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/simulated-annealing">simulated-annealing</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/singular-value-decomposition">singular-value-decomposition</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/smtp">smtp</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/soap">soap</a>
+</span>
+<span class="label-size label-size-4">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/solr">solr</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/spark">spark</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/spatial">spatial</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/spell-checking">spell-checking</a>
+</span>
+<span class="label-size label-size-4">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/spring">spring</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/springmodules-jcr">springmodules-jcr</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/springmodules-lucene">springmodules-lucene</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/squid">squid</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/statistics">statistics</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/stax">stax</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/tag-cloud">tag-cloud</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/tagging">tagging</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/tapestry">tapestry</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/taxonomy">taxonomy</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/tensorflow">tensorflow</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/tf-idf">tf-idf</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/tiles">tiles</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/transactions">transactions</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/trees">trees</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/turbogears">turbogears</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/ubuntu">ubuntu</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/uima">uima</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/unison">unison</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/unit-testing">unit-testing</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/unix">unix</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/url-rewriting">url-rewriting</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/urlrewrite-filter">urlrewrite-filter</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/velocity">velocity</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/version-control">version-control</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/web">web</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/web-development">web-development</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/web-service">web-service</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/webapp-security">webapp-security</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/webwork">webwork</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/weka">weka</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/windows">windows</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/workflow">workflow</a>
+</span>
+<span class="label-size label-size-1">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/xfire">xfire</a>
+</span>
+<span class="label-size label-size-3">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/xml">xml</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/xmlrpc">xmlrpc</a>
+</span>
+<span class="label-size label-size-2">
+<a dir="ltr" href="http://sujitpal.blogspot.com/search/label/xpath">xpath</a>
+</span>
+<div class="clear"></div>
+<span class="widget-item-control">
+<span class="item-control blog-admin">
+<a class="quickedit" href="http://www.blogger.com/rearrange?blogID=7583720&amp;widgetType=Label&amp;widgetId=Label1&amp;action=editWidget&amp;sectionId=sidebar" onclick='return _WidgetManager._PopupConfig(document.getElementById("Label1"));' target="configLabel1" title="Edit">
+<img alt="" src="rake%20info_files/icon18_wrench_allbkg.png" width="18" height="18">
+</a>
+</span>
+</span>
+<div class="clear"></div>
+</div>
+</div><div class="widget BlogList" data-version="1" id="BlogList1">
+<h2 class="title">Blogs I Read</h2>
+<div class="widget-content">
+<div class="blog-list-container" id="BlogList1_container">
+<ul id="BlogList1_blogs">
+<li style="display: block;">
+<div class="blog-icon">
+<img data-lateloadsrc="https://lh5.googleusercontent.com/proxy/Obe5Jl5ZMmVuVi2ZJb1-7qEXh5tTu5zlzoJcLMYJN5X1HXdLUt8NukY23Wk45cJBet9ABbmKaV4zQktOuRmA=s0-d" src="rake%20info_files/Obe5Jl5ZMmVuVi2ZJb1-7qEXh5tTu5zlzoJcLMYJN5X1HXdLUt8NukY23Wk4.ico" width="16" height="16">
+</div>
+<div class="blog-content">
+<div class="blog-title">
+<a href="http://thedatachef.blogspot.com/" target="_blank">
+Data Recipes</a>
+</div>
+<div class="item-content">
+<div class="item-time">
+4 years ago
+</div>
+</div>
+</div>
+<div style="clear: both;"></div>
+</li>
+<li style="display: block;">
+<div class="blog-icon">
+<img data-lateloadsrc="https://lh3.googleusercontent.com/proxy/HhBY7GecEKEM33GsQ5vi__-VltlIWhQkk75FZJ_YxVbjW1o-uyJqGz6v1hfCRXWXyOFaDw=s0-d" src="rake%20info_files/HhBY7GecEKEM33GsQ5vi__-VltlIWhQkk75FZJ_YxVbjW1o-uyJqGz6v1hfC.htm" style="visibility: hidden;" width="16" height="16">
+</div>
+<div class="blog-content">
+<div class="blog-title">
+<a href="http://blog.echen.me/feed/" target="_blank">
+Edwin Chen’s Blog</a>
+</div>
+<div class="item-content">
+<div class="item-time">
+<!--Can't find substitution for tag [item.timePeriodSinceLastUpdate]-->
+</div>
+</div>
+</div>
+<div style="clear: both;"></div>
+</li>
+<li style="display: block;">
+<div class="blog-icon">
+<img data-lateloadsrc="https://lh3.googleusercontent.com/proxy/JV8w382bbmLtLd3DqtaO65_KDdGybwds6WZw0_iZB4j47U5PBOVW6jyjQfh7oP678A=s0-d" src="rake%20info_files/JV8w382bbmLtLd3DqtaO65_KDdGybwds6WZw0_iZB4j47U5PBOVW6jyjQfh7.htm" style="visibility: hidden;" width="16" height="16">
+</div>
+<div class="blog-content">
+<div class="blog-title">
+<a href="http://fastml.com/" target="_blank">
+FastML</a>
+</div>
+<div class="item-content">
+<div class="item-time">
+4 weeks ago
+</div>
+</div>
+</div>
+<div style="clear: both;"></div>
+</li>
+<li style="display: block;">
+<div class="blog-icon">
+<img data-lateloadsrc="https://lh4.googleusercontent.com/proxy/M5dzwZIsO0fWjBgpOMrp7lMIaxrOnJ7dTB9czMsFkD9DMFqMDBK574315oOMK2-_YERQ7zTdt3jSYouC3EA=s0-d" src="rake%20info_files/M5dzwZIsO0fWjBgpOMrp7lMIaxrOnJ7dTB9czMsFkD9DMFqMDBK574315oOM.ico" width="16" height="16">
+</div>
+<div class="blog-content">
+<div class="blog-title">
+<a href="https://isquared.wordpress.com/" target="_blank">
+Information Interaction</a>
+</div>
+<div class="item-content">
+<div class="item-time">
+1 day ago
+</div>
+</div>
+</div>
+<div style="clear: both;"></div>
+</li>
+<li style="display: block;">
+<div class="blog-icon">
+<img data-lateloadsrc="https://lh5.googleusercontent.com/proxy/EhNJdFTAnvPFkv-40xztlbznlunJ-dj-3HJfcT25IiOpl25I3Ne_yTyq97BO3IrA3JJpy6c=s0-d" src="rake%20info_files/EhNJdFTAnvPFkv-40xztlbznlunJ-dj-3HJfcT25IiOpl25I3Ne_yTyq97BO.htm" style="visibility: hidden;" width="16" height="16">
+</div>
+<div class="blog-content">
+<div class="blog-title">
+<a href="http://lucidworks.com/" target="_blank">
+Lucid Imagination Blog</a>
+</div>
+<div class="item-content">
+<div class="item-time">
+9 months ago
+</div>
+</div>
+</div>
+<div style="clear: both;"></div>
+</li>
+<li style="display: block;">
+<div class="blog-icon">
+<img data-lateloadsrc="https://lh5.googleusercontent.com/proxy/OUUCbUqRjEyjOih9qFyRIkqoon77JC-s6zGj4bljhnBqdkMSGOZ_udPaHeiHVhfTirN_AHgSlQTUXJkgeQ=s0-d" src="rake%20info_files/OUUCbUqRjEyjOih9qFyRIkqoon77JC-s6zGj4bljhnBqdkMSGOZ_udPaHeiH.ico" width="16" height="16">
+</div>
+<div class="blog-content">
+<div class="blog-title">
+<a href="https://pkghosh.wordpress.com/" target="_blank">
+Mawazo</a>
+</div>
+<div class="item-content">
+<div class="item-time">
+1 week ago
+</div>
+</div>
+</div>
+<div style="clear: both;"></div>
+</li>
+<li style="display: block;">
+<div class="blog-icon">
+<img data-lateloadsrc="https://lh6.googleusercontent.com/proxy/wpfVFX361E6EH6pdnWEBURO0gaY-emz9WDuTcX8gLd72qs5PVJIsvoiEplna59oXHXfxJdmb=s0-d" src="rake%20info_files/wpfVFX361E6EH6pdnWEBURO0gaY-emz9WDuTcX8gLd72qs5PVJIsvoiEplna.htm" style="visibility: hidden;" width="16" height="16">
+</div>
+<div class="blog-content">
+<div class="blog-title">
+<a href="http://blog.kaggle.com/" target="_blank">
+No Free Hunch</a>
+</div>
+<div class="item-content">
+<div class="item-time">
+2 hours ago
+</div>
+</div>
+</div>
+<div style="clear: both;"></div>
+</li>
+<li style="display: block;">
+<div class="blog-icon">
+<img data-lateloadsrc="https://lh4.googleusercontent.com/proxy/wmf8l9QYWsxxfoIE1-L5l_OaytNAVNKbONAH69W5sP0W2nLul2fOv_27suzyLBSdwocjCG3yNL724i-8pEq_sFcwDmY=s0-d" src="rake%20info_files/wmf8l9QYWsxxfoIE1-L5l_OaytNAVNKbONAH69W5sP0W2nLul2fOv_27suzy.ico" width="16" height="16">
+</div>
+<div class="blog-content">
+<div class="blog-title">
+<a href="http://www.opensourceconnections.com/rss" target="_blank">
+OpenSource Connections Blog</a>
+</div>
+<div class="item-content">
+<div class="item-time">
+<!--Can't find substitution for tag [item.timePeriodSinceLastUpdate]-->
+</div>
+</div>
+</div>
+<div style="clear: both;"></div>
+</li>
+<li style="display: block;">
+<div class="blog-icon">
+<img data-lateloadsrc="https://lh6.googleusercontent.com/proxy/5l_6NJ0kpwngmWFgsr3A3US-c2QQrvESU78Mp5ZtuHuMzd2Lsw71F8FQZ3AID_QOv9ZZhVo2_CbvwtCG33I=s0-d" src="rake%20info_files/5l_6NJ0kpwngmWFgsr3A3US-c2QQrvESU78Mp5ZtuHuMzd2Lsw71F8FQZ3AI.gif" width="16" height="16">
+</div>
+<div class="blog-content">
+<div class="blog-title">
+<a href="https://www.scaleunlimited.com/" target="_blank">
+Scale Unlimited Blog</a>
+</div>
+<div class="item-content">
+<div class="item-time">
+1 year ago
+</div>
+</div>
+</div>
+<div style="clear: both;"></div>
+</li>
+<li style="display: block;">
+<div class="blog-icon">
+<img data-lateloadsrc="https://lh4.googleusercontent.com/proxy/tZIxCXxSU4kDNMvXjvFwEgY1Clpa3MqcqdKQKksGp7nh2xFh2TlUYbQGskIyNGVy0gJTPA=s0-d" src="rake%20info_files/tZIxCXxSU4kDNMvXjvFwEgY1Clpa3MqcqdKQKksGp7nh2xFh2TlUYbQGskIy.htm" style="visibility: hidden;" width="16" height="16">
+</div>
+<div class="blog-content">
+<div class="blog-title">
+<a href="https://sematext.com/" target="_blank">
+Sematext Blog</a>
+</div>
+<div class="item-content">
+<div class="item-time">
+4 weeks ago
+</div>
+</div>
+</div>
+<div style="clear: both;"></div>
+</li>
+<li style="display: block;">
+<div class="blog-icon">
+<img data-lateloadsrc="https://lh4.googleusercontent.com/proxy/xAqYxf0ScFSeclnnV4VcMLcqGubq0Z7H1UqbJWJqly3-OkLMFRyGMG1XjLiZWOVTh9plbcI9Lh4=s0-d" src="rake%20info_files/xAqYxf0ScFSeclnnV4VcMLcqGubq0Z7H1UqbJWJqly3-OkLMFRyGMG1XjLiZ.gif" width="16" height="16">
+</div>
+<div class="blog-content">
+<div class="blog-title">
+<a href="https://streamhacker.com/" target="_blank">
+StreamHacker</a>
+</div>
+<div class="item-content">
+<div class="item-time">
+3 months ago
+</div>
+</div>
+</div>
+<div style="clear: both;"></div>
+</li>
+<li style="display: block;">
+<div class="blog-icon">
+<img data-lateloadsrc="https://lh3.googleusercontent.com/proxy/ap7DTSV42qIhMpWZ9_TLsIi-8iCLGF4qwI7QQAZCi1MmAJUQTXsXpvT7nE4nLspGLGMXv2RPAKXmRIZ6=s0-d" src="rake%20info_files/ap7DTSV42qIhMpWZ9_TLsIi-8iCLGF4qwI7QQAZCi1MmAJUQTXsXpvT7nE4n.ico" width="16" height="16">
+</div>
+<div class="blog-content">
+<div class="blog-title">
+<a href="http://tdunning.blogspot.com/" target="_blank">
+Surprise and Coincidence...</a>
+</div>
+<div class="item-content">
+<div class="item-time">
+4 months ago
+</div>
+</div>
+</div>
+<div style="clear: both;"></div>
+</li>
+<li style="display: block;">
+<div class="blog-icon">
+<img data-lateloadsrc="https://lh5.googleusercontent.com/proxy/eeT2sxVt_BCwUKyHY5FgYORq23SdkKdzOpHDmotP8hbtdt92cNLz2AAimf_8AZZwGxD_yKFBrlrpyn_VrU_3xoFYCdQT=s0-d" src="rake%20info_files/eeT2sxVt_BCwUKyHY5FgYORq23SdkKdzOpHDmotP8hbtdt92cNLz2AAimf_8.ico" width="16" height="16">
+</div>
+<div class="blog-content">
+<div class="blog-title">
+<a href="http://textanddatamining.blogspot.com/" target="_blank">
+Text &amp; Data Mining by Practical Means</a>
+</div>
+<div class="item-content">
+<div class="item-time">
+8 months ago
+</div>
+</div>
+</div>
+<div style="clear: both;"></div>
+</li>
+</ul>
+<div class="clear"></div>
+<span class="widget-item-control">
+<span class="item-control blog-admin">
+<a class="quickedit" href="http://www.blogger.com/rearrange?blogID=7583720&amp;widgetType=BlogList&amp;widgetId=BlogList1&amp;action=editWidget&amp;sectionId=sidebar" onclick='return _WidgetManager._PopupConfig(document.getElementById("BlogList1"));' target="configBlogList1" title="Edit">
+<img alt="" src="rake%20info_files/icon18_wrench_allbkg.png" width="18" height="18">
+</a>
+</span>
+</span>
+<div class="clear"></div>
+</div>
+</div>
+</div><div class="widget Profile" data-version="1" id="Profile1">
+<h2>About me</h2>
+<div class="widget-content">
+<a href="https://www.blogger.com/profile/06835223352394332155"><img alt="My photo" class="profile-img" src="rake%20info_files/a.jpg" width="68" height="80"></a>
+<dl class="profile-datablock">
+<dt class="profile-data">
+<a class="profile-name-link g-profile" href="https://www.blogger.com/profile/06835223352394332155" rel="author" style="background-image: url(//www.blogger.com/img/logo-16.png);" data-gapiscan="true" data-onload="true" data-gapiattached="true">
+Sujit Pal
+</a>
+</dt>
+<dd class="profile-textblock">I am a programmer interested in Semantic 
+Search, Ontology, Natural Language Processing and Machine Learning. My 
+programming languages of choice are Java, Scala, and Python. I love 
+solving problems and exploring different possibilities with open source 
+tools and frameworks.</dd>
+</dl>
+<a class="profile-link" href="https://www.blogger.com/profile/06835223352394332155" rel="author">View my complete profile</a>
+<div class="clear"></div>
+<span class="widget-item-control">
+<span class="item-control blog-admin">
+<a class="quickedit" href="http://www.blogger.com/rearrange?blogID=7583720&amp;widgetType=Profile&amp;widgetId=Profile1&amp;action=editWidget&amp;sectionId=sidebar" onclick='return _WidgetManager._PopupConfig(document.getElementById("Profile1"));' target="configProfile1" title="Edit">
+<img alt="" src="rake%20info_files/icon18_wrench_allbkg.png" width="18" height="18">
+</a>
+</span>
+</span>
+<div class="clear"></div>
+</div>
+</div><div class="widget HTML" data-version="1" id="HTML1">
+<h2 class="title">My Nerd Rating</h2>
+<div class="widget-content">
+<a href="http://www.nerdtests.com/ft_nq.php?im"><img alt="I am nerdier than 95% of all people. Are you nerdier? Click here to find out!" src="rake%20info_files/nq.gif"></a>
+</div>
+<div class="clear"></div>
+<span class="widget-item-control">
+<span class="item-control blog-admin">
+<a class="quickedit" href="http://www.blogger.com/rearrange?blogID=7583720&amp;widgetType=HTML&amp;widgetId=HTML1&amp;action=editWidget&amp;sectionId=sidebar" onclick='return _WidgetManager._PopupConfig(document.getElementById("HTML1"));' target="configHTML1" title="Edit">
+<img alt="" src="rake%20info_files/icon18_wrench_allbkg.png" width="18" height="18">
+</a>
+</span>
+</span>
+<div class="clear"></div>
+</div><div class="widget FollowByEmail" data-version="1" id="FollowByEmail1">
+<h2 class="title">Subscribe</h2>
+<div class="widget-content">
+<div class="follow-by-email-inner">
+<form action="https://feedburner.google.com/fb/a/mailverify" method="post" onsubmit='window.open("https://feedburner.google.com/fb/a/mailverify?uri=SalmonRun", "popupwindow", "scrollbars=yes,width=550,height=520"); return true' target="popupwindow">
+<table width="100%">
+<tbody><tr>
+<td>
+<input class="follow-by-email-address" name="email" placeholder="Email address..." type="text">
+</td>
+<td width="64px">
+<input class="follow-by-email-submit" value="Submit" type="submit">
+</td>
+</tr>
+</tbody></table>
+<input name="uri" value="SalmonRun" type="hidden">
+<input name="loc" value="en_US" type="hidden">
+</form>
+</div>
+</div>
+<span class="item-control blog-admin">
+<div class="clear"></div>
+<span class="widget-item-control">
+<span class="item-control blog-admin">
+<a class="quickedit" href="http://www.blogger.com/rearrange?blogID=7583720&amp;widgetType=FollowByEmail&amp;widgetId=FollowByEmail1&amp;action=editWidget&amp;sectionId=sidebar" onclick='return _WidgetManager._PopupConfig(document.getElementById("FollowByEmail1"));' target="configFollowByEmail1" title="Edit">
+<img alt="" src="rake%20info_files/icon18_wrench_allbkg.png" width="18" height="18">
+</a>
+</span>
+</span>
+<div class="clear"></div>
+</span>
+</div><div class="widget HTML" data-version="1" id="HTML3">
+<h2 class="title">Visitor Map</h2>
+<div class="widget-content">
+<div id="clustrmaps-widget"></div><script type="text/javascript">var 
+_clustrmaps = {'url' : 'http://sujitpal.blogspot.com', 'user' : 1165916,
+ 'server' : '3', 'id' : 'clustrmaps-widget', 'version' : 1, 'date' : 
+'2015-04-05', 'lang' : 'en', 'corners' : 'square' };(function (){ var s =
+ document.createElement('script'); s.type = 'text/javascript'; s.async =
+ true; s.src = 'http://www3.clustrmaps.com/counter/map.js'; var x = 
+document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s,
+ x);})();</script><noscript><a 
+href="http://www3.clustrmaps.com/user/d2111ca5c"><img 
+src="http://www3.clustrmaps.com/stats/maps-no_clusters/sujitpal.blogspot.com-thumb.jpg"
+ alt="Locations of visitors to this page" /></a></noscript>
+</div>
+<div class="clear"></div>
+<span class="widget-item-control">
+<span class="item-control blog-admin">
+<a class="quickedit" href="http://www.blogger.com/rearrange?blogID=7583720&amp;widgetType=HTML&amp;widgetId=HTML3&amp;action=editWidget&amp;sectionId=sidebar" onclick='return _WidgetManager._PopupConfig(document.getElementById("HTML3"));' target="configHTML3" title="Edit">
+<img alt="" src="rake%20info_files/icon18_wrench_allbkg.png" width="18" height="18">
+</a>
+</span>
+</span>
+<div class="clear"></div>
+</div><div class="widget BloggerButton" data-version="1" id="BloggerButton1">
+<div class="widget-content">
+<a href="https://www.blogger.com/"><img alt="Powered By Blogger" src="rake%20info_files/blogger-powerby-blue.gif"></a>
+<div class="clear"></div>
+<span class="widget-item-control">
+<span class="item-control blog-admin">
+<a class="quickedit" href="http://www.blogger.com/rearrange?blogID=7583720&amp;widgetType=BloggerButton&amp;widgetId=BloggerButton1&amp;action=editWidget&amp;sectionId=sidebar" onclick='return _WidgetManager._PopupConfig(document.getElementById("BloggerButton1"));' target="configBloggerButton1" title="Edit">
+<img alt="" src="rake%20info_files/icon18_wrench_allbkg.png" width="18" height="18">
+</a>
+</span>
+</span>
+<div class="clear"></div>
+</div>
+</div></div>
+</div>
+<!-- spacer for skins that want sidebar and main to be the same height-->
+<div class="clear">&nbsp;</div>
+</div>
+<!-- end content-wrapper -->
+</div></div>
+<!-- end outer-wrapper -->
+<script src="rake%20info_files/plusone.js" type="text/javascript" gapi_processed="true"></script>
+
+<script type="text/javascript" src="rake%20info_files/684644471-widgets.js"></script>
+<script type="text/javascript">
+window['__wavt'] = 
+'AOuZoY5XlVZnK4xgnr-8s747V6bEhXcouw:1510775802596';_WidgetManager._Init('//www.blogger.com/rearrange?blogID\x3d7583720','//sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html','7583720');
+_WidgetManager._SetDataContext([{'name':
+ 'blog', 'data': {'blogId': '7583720', 'title': 'Salmon Run', 'url': 
+'http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html',
+ 'canonicalUrl': 
+'http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html',
+ 'homepageUrl': 'http://sujitpal.blogspot.com/', 'searchUrl': 
+'http://sujitpal.blogspot.com/search', 'canonicalHomepageUrl': 
+'http://sujitpal.blogspot.com/', 'blogspotFaviconUrl': 
+'http://sujitpal.blogspot.com/favicon.ico', 'bloggerUrl': 
+'https://www.blogger.com', 'hasCustomDomain': false, 'httpsEnabled': 
+true, 'enabledCommentProfileImages': true, 'gPlusViewType': 
+'FILTERED_POSTMOD', 'adultContent': false, 'analyticsAccountNumber': '',
+ 'encoding': 'UTF-8', 'locale': 'en', 'localeUnderscoreDelimited': 'en',
+ 'languageDirection': 'ltr', 'isPrivate': false, 'isMobile': false, 
+'isMobileRequest': false, 'mobileClass': '', 'isPrivateBlog': false, 
+'feedLinks': '\x3clink rel\x3d\x22alternate\x22 
+type\x3d\x22application/atom+xml\x22 title\x3d\x22Salmon Run - Atom\x22 
+href\x3d\x22http://sujitpal.blogspot.com/feeds/posts/default\x22 
+/\x3e\n\x3clink rel\x3d\x22alternate\x22 
+type\x3d\x22application/rss+xml\x22 title\x3d\x22Salmon Run - RSS\x22 
+href\x3d\x22http://sujitpal.blogspot.com/feeds/posts/default?alt\x3drss\x22
+ /\x3e\n\x3clink rel\x3d\x22service.post\x22 
+type\x3d\x22application/atom+xml\x22 title\x3d\x22Salmon Run - Atom\x22 
+href\x3d\x22https://www.blogger.com/feeds/7583720/posts/default\x22 
+/\x3e\n\n\x3clink rel\x3d\x22alternate\x22 
+type\x3d\x22application/atom+xml\x22 title\x3d\x22Salmon Run - Atom\x22 
+href\x3d\x22http://sujitpal.blogspot.com/feeds/2801403684823908983/comments/default\x22
+ /\x3e\n', 'meTag': '', 'openIdOpTag': '', 'adsenseClientId': 
+'ca-pub-5373479400272102', 'adsenseHostId': 
+'ca-host-pub-1556223355139109', 'adsenseHasAds': true, 'view': '', 
+'dynamicViewsCommentsSrc': 
+'//www.blogblog.com/dynamicviews/4224c15c4e7c9321/js/comments.js', 
+'dynamicViewsScriptSrc': 
+'//www.blogblog.com/dynamicviews/9395240b25bf2486', 'plusOneApiSrc': 
+'https://apis.google.com/js/plusone.js', 'sharing': {'platforms': 
+[{'name': 'Get link', 'key': 'link', 'shareMessage': 'Get link', 
+'target': ''}, {'name': 'Facebook', 'key': 'facebook', 'shareMessage': 
+'Share to Facebook', 'target': 'facebook'}, {'name': 'BlogThis!', 'key':
+ 'blogThis', 'shareMessage': 'BlogThis!', 'target': 'blog'}, {'name': 
+'Twitter', 'key': 'twitter', 'shareMessage': 'Share to Twitter', 
+'target': 'twitter'}, {'name': 'Pinterest', 'key': 'pinterest', 
+'shareMessage': 'Share to Pinterest', 'target': 'pinterest'}, {'name': 
+'Google+', 'key': 'googlePlus', 'shareMessage': 'Share to Google+', 
+'target': 'googleplus'}, {'name': 'Email', 'key': 'email', 
+'shareMessage': 'Email', 'target': 'email'}], 
+'googlePlusShareButtonWidth': 300, 'googlePlusBootstrap': '\x3cscript 
+type\x3d\x22text/javascript\x22\x3ewindow.___gcfg \x3d {\x27lang\x27: 
+\x27en\x27};\x3c/script\x3e'}, 'hasCustomJumpLinkMessage': false, 
+'jumpLinkMessage': 'Read more', 'pageType': 'item', 'postId': 
+'2801403684823908983', 'pageName': 'Implementing the RAKE Algorithm with
+ NLTK', 'pageTitle': 'Salmon Run: Implementing the RAKE Algorithm with 
+NLTK'}}, {'name': 'features', 'data': {'lazy_images': 'false', 
+'unsupported_browser_message': 'false', 'lightbox_img_parsing': 'true', 
+'video_theatre_support': 'true', 'sharing_get_link_dialog': 'false', 
+'sharing_native': 'false'}}, {'name': 'messages', 'data': {'edit': 
+'Edit', 'linkCopiedToClipboard': 'Link copied to clipboard!', 'ok': 
+'Ok', 'postLink': 'Post Link'}}, {'name': 'template', 'data': {'name': 
+'custom', 'localizedName': 'Custom', 'isResponsive': false, 
+'isAlternateRendering': false, 'isCustom': true}}, {'name': 'view', 
+'data': {'classic': {'name': 'classic', 'url': '?view\x3dclassic'}, 
+'flipcard': {'name': 'flipcard', 'url': '?view\x3dflipcard'}, 
+'magazine': {'name': 'magazine', 'url': '?view\x3dmagazine'}, 'mosaic': 
+{'name': 'mosaic', 'url': '?view\x3dmosaic'}, 'sidebar': {'name': 
+'sidebar', 'url': '?view\x3dsidebar'}, 'snapshot': {'name': 'snapshot', 
+'url': '?view\x3dsnapshot'}, 'timeslide': {'name': 'timeslide', 'url': 
+'?view\x3dtimeslide'}, 'isMobile': false, 'title': 'Implementing the 
+RAKE Algorithm with NLTK', 'description': ' The Rapid Automatic Keyword 
+Extraction (RAKE) algorithm extracts keywords from text, by identifying 
+runs of non-stopwords and then scoring ...', 'url': 
+'http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html',
+ 'type': 'item', 'isSingleItem': true, 'isMultipleItems': false, 
+'isError': false, 'isPage': false, 'isPost': true, 'isHomepage': false, 
+'isArchive': false, 'isLabelSearch': false, 'postId': 
+2801403684823908983}}]);
+_WidgetManager._RegisterWidget('_NavbarView', new _WidgetInfo('Navbar1',
+ 'navbar', null, document.getElementById('Navbar1'), {}, 
+'displayModeFull'));
+_WidgetManager._RegisterWidget('_HeaderView', new _WidgetInfo('Header1',
+ 'header', null, document.getElementById('Header1'), {}, 
+'displayModeFull'));
+_WidgetManager._RegisterWidget('_AdSenseView', new 
+_WidgetInfo('AdSense1', 'main', null, 
+document.getElementById('AdSense1'), {}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_BlogView', new _WidgetInfo('Blog1', 
+'main', null, document.getElementById('Blog1'), 
+{'cmtInteractionsEnabled': false, 'showBacklinks': true, 'postId': 
+'2801403684823908983', 'useNgc': false, 'lightboxEnabled': true, 
+'lightboxModuleUrl': 
+'https://www.blogger.com/static/v1/jsbin/1584353632-lbx.js', 
+'lightboxCssUrl': 
+'https://www.blogger.com/static/v1/v-css/368954415-lightbox_bundle.css'},
+ 'displayModeFull'));
+_WidgetManager._RegisterWidget('_BlogArchiveView', new 
+_WidgetInfo('BlogArchive1', 'sidebar', null, 
+document.getElementById('BlogArchive1'), {'languageDirection': 'ltr', 
+'loadingMessage': 'Loading\x26hellip;'}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_LabelView', new _WidgetInfo('Label1', 
+'sidebar', null, document.getElementById('Label1'), {}, 
+'displayModeFull'));
+_WidgetManager._RegisterWidget('_BlogListView', new 
+_WidgetInfo('BlogList1', 'sidebar', null, 
+document.getElementById('BlogList1'), {'numItemsToShow': 0, 
+'totalItems': 13}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_ProfileView', new 
+_WidgetInfo('Profile1', 'sidebar', null, 
+document.getElementById('Profile1'), {}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_HTMLView', new _WidgetInfo('HTML1', 
+'sidebar', null, document.getElementById('HTML1'), {}, 
+'displayModeFull'));
+_WidgetManager._RegisterWidget('_FollowByEmailView', new 
+_WidgetInfo('FollowByEmail1', 'sidebar', null, 
+document.getElementById('FollowByEmail1'), {}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_HTMLView', new _WidgetInfo('HTML3', 
+'sidebar', null, document.getElementById('HTML3'), {}, 
+'displayModeFull'));
+_WidgetManager._RegisterWidget('_BloggerButtonView', new 
+_WidgetInfo('BloggerButton1', 'sidebar', null, 
+document.getElementById('BloggerButton1'), {}, 'displayModeFull'));
+</script>
+
+</body></html>
