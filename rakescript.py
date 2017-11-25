@@ -5,6 +5,8 @@ import os, string
 from bs4 import BeautifulSoup
 import re, csv
 
+def RemoveWord(cur_phrase, word):
+    pass
 
 def CountOccurrences(my_text):
     word_dict = {}
@@ -28,18 +30,52 @@ def CountOccurrences(my_text):
         else:  # Word hasnt been put in dictionary yet
             word_dict[cur_word] = 1
 
-
-
-
 def RankWords(mytext):
     """
-
     :param mytext: should be a string with the text wanting to be analyized
     :return: going to return two dictionaries, one with the word and it's frequency, the other with a word and its RAKE score.
     """
     r = Rake()
     r.extract_keywords_from_text(text=mytext)
     ranked_phrases = r.get_ranked_phrases_with_scores()
+    ranked_phrases = [list(x) for x in ranked_phrases]
+    with open(os.path.join(os.curdir, 'StopList.csv'), 'r') as stoplist:
+        stopwords = csv.reader(stoplist)
+        for word in stopwords:
+            for phraseindex, phrase in enumerate(ranked_phrases):
+                if word[0] in phrase[1]:      #The need to remove word from phrase
+                    """
+                    Scenarios:
+                    1.) the word is the only word in the phrase--> Remove the entire dict
+                    2.) the word is a word in the phrase:
+                            -word is the starting word in phrase--> delete only the word in the phrase
+                            -word is a subword in the phrase -->do nothing
+                            -word is at the end of the phrase --> delete only the word in the phrase
+                    3.) the word is a subword in the phrase--> do nothing
+                    """
+
+                    wordindex = str.find(phrase[1], word[0])
+                    if wordindex >0:
+                        if word[0] == phrase[1]:        #Remove the entire dict Scenario 1
+                            #Remove the entire tuple element (Scenario 1.)
+                            del ranked_phrases[phraseindex]
+                            continue
+                        if wordindex == 0:
+                            if phrase[1][wordindex+len(word[0])] == ' ':
+                                #word is in phrase, delete only the word (Scenario 2)
+                                ranked_phrases[phraseindex][1] = str(phrase[1][wordindex+len(word[0])+1:])
+                                continue
+
+                        elif phrase[1][wordindex-1] == ' ' and phrase[1][-len(word[0]):] == word[0]:#Word at end of phrase
+                            #remove the string
+                            ranked_phrases[phraseindex][1] = str(phrase[1][:wordindex])
+                            continue
+                        try:
+                            if phrase[1][wordindex-1] == ' ' and phrase[1][wordindex+len(word[0])] ==' ':
+                                ranked_phrases[phraseindex][1] == str(phrase[1][:wordindex])+str(phrase[1][wordindex+len(word[0]):])
+                                continue
+                        except IndexError:
+                            continue
     return ranked_phrases
 
 
@@ -81,7 +117,7 @@ RE_SPACES = re.compile(r'\s{3,}')
 # for dirpath, dirnames, filenames in os.walk(r'C:\Users\c1phill\PycharmProjects\Rake Project\HT\www.hindustantimes.com'):
 #     pass
 webtext = []
-for root, dirs, files in os.walk(r'C:\Users\c1phill\PycharmProjects\Rake Project\HT\www.hindustantimes.com'):
+for root, dirs, files in os.walk(r'C:\Users\cphil\PycharmProjects\Upwork_RakeProject\HT\www.hindustantimes.com'):
     path = root.split(os.sep)
     #print((len(path) - 1) * '---', os.path.basename(root))
     for file in files:
@@ -121,4 +157,3 @@ for root, dirs, files in os.walk(r'C:\Users\c1phill\PycharmProjects\Rake Project
                 # csv.writer(my_csv).writerow([r''])
             my_csv.close()
             print(len(path) * '---', file)
-
